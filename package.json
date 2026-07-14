@@ -10,9 +10,16 @@
     "type": "git",
     "url": "git+https://github.com/PolymorFox/openrounter-agent.git"
   },
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "node agent.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "openai": "^6.46.0",
+    "prompt-sync": "^4.2.0",
+    "zod": "^4.4.3",
+    "zod-to-json-schema": "^3.25.2"
   }
 }

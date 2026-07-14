@@ -1,6 +1,6 @@
 # OpenRouter Agent
 
-This is a project for a simple ai agent utilizing openrouter
+This is a project meant to implement a simple ai agent utilizing the openai sdk with openrouter
 
 ## Quickstart
 

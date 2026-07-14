@@ -5,6 +5,8 @@ This is a project meant to implement a simple ai agent utilizing the openai sdk 
 ## Quickstart
 
 ```bash
+# Clone the repo
+git clone https://github.com/PolymorFox/openrounter-agent.git
 
 # Enter your openrouter api key
 echo "OPENROUTER_KEY=<api_key>" > .env
@@ -13,6 +15,6 @@ echo "OPENROUTER_KEY=<api_key>" > .env
 npm install
 
 # Run the agent
-node index.js
+node agent.js
 
 ```

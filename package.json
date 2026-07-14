@@ -1,0 +1,18 @@
+{
+  "name": "openrounter-agent",
+  "version": "1.0.0",
+  "description": "A simple ai agent utilizing openrouter",
+  "homepage": "https://github.com/PolymorFox/openrounter-agent#readme",
+  "bugs": {
+    "url": "https://github.com/PolymorFox/openrounter-agent/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PolymorFox/openrounter-agent.git"
+  },
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  }
+}

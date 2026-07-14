@@ -10,9 +10,9 @@ This is a project for a simple ai agent utilizing openrouter
 echo "OPENROUTER_KEY=<api_key>" > .env
 
 # Install dependecies
-uv sync
+npm install
 
-# Run the project
-python main.py
+# Run the agent
+node index.js
 
 ```

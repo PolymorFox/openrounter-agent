@@ -2,60 +2,27 @@ import dotenv from "dotenv";
 import OpenAI from "openai";
 import PromptSync from "prompt-sync";
 import z from "zod";
-import { spawn } from "node:child_process"
-import { stdout } from "node:process";
 import os from "node:os"
+import { HelloTool, executeCommandTool } from "./tools.js"
 
 const prompt = PromptSync();
-
-const HelloToolSchema = z.object({});
-const ExecuteCommandToolSchema = z.object({
-  command: z.string().describe("The command to execute"),
-});
-
-function executeCommand(command) {
-  return new Promise((resolve, reject) => {
-    // Split the command into program and arguments
-    const [program, ...args] = command.split(/\s+/);
-
-    const commandInstance = spawn(program, args);
-    let output = "";
-
-    commandInstance.stdout.on('data', (data) => {
-      output += `stdout: ${data}`;
-    });
-
-    commandInstance.stderr.on('data', (data) => {
-      output += `stderr: ${data}`;
-    });
-
-    commandInstance.on('close', (code) => {
-      output += ` Exit Code ${code}`;
-      resolve(output);
-    });
-
-    commandInstance.on('error', (err) => {
-      reject(`Error: ${err.message}`);
-    });
-  });
-}
 
 const tools = [
   {
     type: "function",
     function: {
-      name: "sayHello",
-      description: "Prints a hello message to the screen",
-      parameters: z.toJSONSchema(HelloToolSchema),
+      name: HelloTool.name,
+      description: HelloTool.description,
+      parameters: HelloTool.schema,
     },
   },
 
   {
     type: "function",
     function: {
-      name: "executeCommand",
-      description: "Executes a shell command and return the result",
-      parameters: z.toJSONSchema(ExecuteCommandToolSchema),
+      name: executeCommandTool.name,
+      description: executeCommandTool.description,
+      parameters: executeCommandTool.schema,
     },
   },
 ];
@@ -64,6 +31,10 @@ const tools = [
 dotenv.config();
 
 const api_key = process.env.OPENROUTER_KEY;
+if (!api_key) {
+  console.error("OPENROUTER_KEY is not defined exiting immediately");
+  process.exit(1);
+}
 
 // The openAI api has perfect compatiblity with the openrouter api
 const openai = new OpenAI({
@@ -111,7 +82,7 @@ async function PromptAgent() {
       switch (toolCall.function.name) {
         case "sayHello":
           console.log(`Executing tool ${toolCall.function.name}`);
-          const toolResult = "Hello World";
+          const toolResult = HelloTool.execute();
           console.log(toolResult + "\n");
 
           messages.push({
@@ -123,7 +94,7 @@ async function PromptAgent() {
         case "executeCommand":
           const commandArgs = JSON.parse(toolCall.function.arguments);
           console.log(`Executing tool executeCommand with command ${commandArgs.command}`);
-          const commandResult = await executeCommand(String(commandArgs.command));
+          const commandResult = await executeCommandTool.execute(command);
           console.log(commandResult);
 
           messages.push({

@@ -2,11 +2,11 @@ import { spawn } from "node:child_process";
 import z from "zod";
 
 class Tool {
-  constructor(name, description="This is a tool", schema, execute=NULL) {
+  constructor(name, description="This is a tool", schema, tool=NULL) {
     this.name = name;
     this.schema = z.toJSONSchema(schema);
     this.description = description;
-    this.execute = execute;
+    this.tool = tool;
   }
 };
 

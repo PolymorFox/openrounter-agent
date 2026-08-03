@@ -23,3 +23,9 @@ npm install
 node agent.js
 
 ```
+
+### Options
+You can specifiy the model id for model you want here using the MODEL_ID environment variable stored in .env, browse available models [here](https://openrouter.ai/models)
+```
+echo "MODEL_ID=<model_env>" >> .env
+```

@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import PromptSync from "prompt-sync";
-import z from "zod";
 import os from "node:os"
 import { HelloTool, executeCommandTool } from "./tools.js"
 
@@ -31,6 +30,8 @@ const tools = [
 dotenv.config();
 
 const api_key = process.env.OPENROUTER_KEY;
+// Use cohere as the default model it is free and should work for everyone
+const model_id = process.env.MODEL_ID ? process.env.MODEL_ID : "cohere/north-mini-code:free";
 if (!api_key) {
   console.error("OPENROUTER_KEY is not defined exiting immediately");
   process.exit(1);
@@ -68,7 +69,7 @@ async function PromptAgent() {
   });
 
   const completion = await openai.chat.completions.create({
-    model: "cohere/north-mini-code:free",
+    model: model_id,
     messages: messages,
     tools: tools,
   });
@@ -82,7 +83,7 @@ async function PromptAgent() {
       switch (toolCall.function.name) {
         case "sayHello":
           console.log(`Executing tool ${toolCall.function.name}`);
-          const toolResult = HelloTool.execute();
+          const toolResult = HelloTool.tool();
           console.log(toolResult + "\n");
 
           messages.push({
@@ -94,7 +95,7 @@ async function PromptAgent() {
         case "executeCommand":
           const commandArgs = JSON.parse(toolCall.function.arguments);
           console.log(`Executing tool executeCommand with command ${commandArgs.command}`);
-          const commandResult = await executeCommandTool.execute(command);
+          const commandResult = await executeCommandTool.tool(command);
           console.log(commandResult);
 
           messages.push({

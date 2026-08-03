@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import OpenAI from "openai";
 import PromptSync from "prompt-sync";
 import os from "node:os"
-import { HelloTool, executeCommandTool } from "./tools.js"
+import { HelloTool, ShellTool, WriteTool } from "./tools.js"
 
 const prompt = PromptSync();
 
@@ -15,15 +15,22 @@ const tools = [
       parameters: HelloTool.schema,
     },
   },
-
   {
     type: "function",
     function: {
-      name: executeCommandTool.name,
-      description: executeCommandTool.description,
-      parameters: executeCommandTool.schema,
+      name: ShellTool.name,
+      description: ShellTool.description,
+      parameters: ShellTool.schema,
     },
   },
+  {
+    type: "function",
+    function: {
+      name: WriteTool.name,
+      description: WriteTool.description,
+      parameters: WriteTool.schema,
+    }
+  }
 ];
 
 // Load openrouter api from .env file
@@ -79,9 +86,10 @@ async function PromptAgent() {
   messages.push(AgentReponse);
 
   if (AgentReponse.tool_calls) {
+    let toolArgs;
     for (const toolCall of AgentReponse.tool_calls) {
       switch (toolCall.function.name) {
-        case "sayHello":
+        case "HelloTool":
           console.log(`Executing tool ${toolCall.function.name}`);
           const toolResult = HelloTool.tool();
           console.log(toolResult + "\n");
@@ -90,18 +98,33 @@ async function PromptAgent() {
             role: "tool",
             tool_call_id: toolCall.id,
             content: toolResult,
+            outputs: [toolResult]
           });
           break;
-        case "executeCommand":
-          const commandArgs = JSON.parse(toolCall.function.arguments);
-          console.log(`Executing tool executeCommand with command ${commandArgs.command}`);
-          const commandResult = await executeCommandTool.tool(command);
+        case "ShellTool":
+        toolArgs = JSON.parse(toolCall.function.arguments);
+        console.log(`Executing tool ShellTool with command ${toolArgs.command}`);
+          const commandResult = await ShellTool.tool(toolArgs.command);
           console.log(commandResult);
 
           messages.push({
             role: "tool",
             tool_call_id: toolCall.id,
-            content: String(commandResult),
+            content: commandResult,
+            outputs: [commandResult]
+          });
+          break;
+        case "WriteTool":
+          toolArgs = JSON.parse(toolCall.function.arguments);
+          console.log("Executing tool WriteTool");
+          const result = await WriteTool.tool(toolArgs.filePath, toolArgs.flag, toolArgs.text);
+          console.log(result);
+
+          messages.push({
+            role: "tool",
+            tool_call_id: toolCall.id,
+            content: result,
+            outputs: [result]
           });
           break;
       }
